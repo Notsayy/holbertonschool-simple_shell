@@ -7,6 +7,7 @@
  *
  * Return: 0
  */
+
 int main(void)
 {
 	char *input = NULL;
@@ -47,20 +48,32 @@ int main(void)
 		if (pid == 0)
 		{
 			char *args[2];
+			char *path;
+
 			args[0] = input;
 			args[1] = NULL;
-			if (execvp(args[0], args) == -1)
+
+			path = find_command_path(input);
+			if (!path)
 			{
-				perror("execvp");
+				fprintf(stderr, "Command not found: %s\n", input);
+				exit(127);
+			}
+
+			if (execve(path, args, environ) == -1)
+			{
+				perror("execve");
+				free(path);
 				exit(1);
 			}
+			free(path);
 
 		}
 		else
 		{
 			wait(NULL);
 		}
-    }
-
+	}
+	free(input);
 	return (0);
 }
