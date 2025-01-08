@@ -57,8 +57,13 @@ The compilation command used is:
 
 ## Project structure
 - [shell.h](./shell.h) : Header file.
-- (Will be updated soon)
-- [shell.c](./shell.c): contain the main implementation of our mini Shell.
+- [execute_command.c](./execute_command.c) : Implements the logic for executing commands and contains the print_error function to handle error messages.
+- [shell.c](./shell.c): Contains the main implementation of our mini Shell.
+- [find_command_path.c](./find_command_path.c): Implements the logic to find the full path of the command.
+- [split_line.c](./split_line.c): Contains the function to split input lines into arguments.
+
+
+
 
 ## Output
 The program must have the exact same output as `sh (/bin/sh)` as well as the exact same error output.
