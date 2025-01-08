@@ -5,8 +5,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <limits.h>
 #include <sys/wait.h>
-
+extern char **environ;
 #define BUFFER_SIZE 1024
-
+char **split_line(char *line);
+void execute_command(char **args, char *program_name);
+void print_error(char *program_name, char *command);
+char *find_command_path(char *command);
 #endif
