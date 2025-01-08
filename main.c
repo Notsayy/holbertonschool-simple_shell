@@ -14,7 +14,7 @@ ssize_t handle_input(char **input, size_t *input_size)
 {
 	printf("$ ");
 	fflush(stdout);
-	return getline(input, input_size, stdin);
+	return (getline(input, input_size, stdin));
 }
 
 /**
@@ -69,7 +69,7 @@ int main(void)
 		if (input_length > 0 && input[input_length - 1] == '\n')
 			input[input_length - 1] = '\0';
 
-		if (strcmp(input, "exit") == 0)
+		if (_strcmp(input, "exit") == 0)
 		{
 			free(input);
 			input = NULL;
