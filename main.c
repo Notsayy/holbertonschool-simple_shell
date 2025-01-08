@@ -3,7 +3,48 @@
 #include "shell.h"
 
 /**
- * main - Entry point for the mini shell
+ * handle_input - reads and processes user input
+ * @input: Pointer to the input
+ * @input_size: Pointer to the size of the input
+ *
+ * Return: length of the input, or -1
+ */
+
+ssize_t handle_input(char **input, size_t *input_size)
+{
+	printf("$ ");
+	fflush(stdout);
+	return getline(input, input_size, stdin);
+}
+
+/**
+ * process_command - forks a child process to execute a command
+ * @input: user command input
+ */
+
+void process_command(char *input)
+{
+	pid_t pid = fork();
+
+	if (pid == -1)
+	{
+		perror("fork");
+		return;
+	}
+
+	if (pid == 0)
+	{
+		execute(input);
+		exit(1);
+	}
+	else
+	{
+		wait(NULL);
+	}
+}
+
+/**
+ * main - entry point for the mini shell
  *
  * Return: 0
  */
@@ -13,12 +54,10 @@ int main(void)
 	char *input = NULL;
 	size_t input_size = 0;
 	ssize_t input_length;
-	pid_t pid;
 
 	while (1)
 	{
-		printf("$ ");
-		input_length = getline(&input, &input_size, stdin);
+		input_length = handle_input(&input, &input_size);
 
 		if (input_length == -1)
 		{
@@ -36,43 +75,8 @@ int main(void)
 			input = NULL;
 			break;
 		}
+		process_command(input);
 
-		pid = fork();
-		if (pid == -1)
-		{
-			perror("fork");
-			free(input);
-			exit(1);
-		}
-
-		if (pid == 0)
-		{
-			char *args[2];
-			char *path;
-
-			args[0] = input;
-			args[1] = NULL;
-
-			path = find_command_path(input);
-			if (!path)
-			{
-				fprintf(stderr, "Command not found: %s\n", input);
-				exit(127);
-			}
-
-			if (execve(path, args, environ) == -1)
-			{
-				perror("execve");
-				free(path);
-				exit(1);
-			}
-			free(path);
-
-		}
-		else
-		{
-			wait(NULL);
-		}
 	}
 	free(input);
 	return (0);
