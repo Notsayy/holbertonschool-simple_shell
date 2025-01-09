@@ -13,7 +13,7 @@ char *find_command_path(char *command)
 	size_t full_path_len;
 	int i;
 
-	for (i = 0; environ[i]; i++)/*Iterate through environment variables to find the PATH variable*/
+	for (i = 0; environ[i]; i++)/*Find the PATH variable*/
 	{
 		if (strncmp(environ[i], "PATH=", 5) == 0)/*Check if the variable is "PATH"*/
 		{
@@ -21,42 +21,32 @@ char *find_command_path(char *command)
 			break;
 		}
 	}
-	/*If PATH is not found in the environment variables, return NULL*/
-	if (!path_env)
+	if (!path_env)/*If PATH is not found,return NULL*/
 		return (NULL);
-	/*Create a copy of the PATH string to tokenize it safely*/
-	path_copy = strdup(path_env);
+	path_copy = strdup(path_env);/*Copy the PATH string to tokenize it*/
 	if (!path_copy)/*Check for memory allocation failure*/
 		return (NULL);
-	/*Tokenize the PATH string to get each directory*/
-	dir = strtok(path_copy, ":");
+	dir = strtok(path_copy, ":");/*Tokenize thePATH string to get each directory*/
 	while (dir)
 	{
-		/*Calculate the length needed for the full path*/
-		full_path_len = strlen(dir) + strlen(command) + 2;
-		/*Allocate memory for the full path*/
-		full_path = malloc(full_path_len);
+		full_path = malloc(strlen(dir) + strlen(command) + 2);
 		if (!full_path)/* Handle memory allocation failure*/
 		{
 			free(path_copy);
 			return (NULL);
 		}
-		/*Build the full path by concatenating directory, "/", and command*/
-		full_path[0] = '\0';
+		full_path[0] = '\0';/*Build the full path by concatenating directory*/
 		strcat(full_path, dir);
 		strcat(full_path, "/");
 		strcat(full_path, command);
-
-		if (access(full_path, X_OK) == 0)/*Check if the command exists and is executable in this directory*/
+		if (access(full_path, X_OK) == 0)/*Check if the command exists*/
 		{
 			free(path_copy);
 			return (full_path);
 		}
-
 		free(full_path);
 		dir = strtok(NULL, ":");/*Get the next directory in PATH*/
 	}
-
 	free(path_copy);
 	return (NULL);
 }
