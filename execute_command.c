@@ -36,9 +36,9 @@ void execute_child_process(char **args, char *program_name, char *command_path)
  * @pid: Process ID of the child
  * @program_name: Name of the shell program
  */
-void wait_for_child(pid_t pid, char *program_name)
+void wait_for_child(pid_t pid)
+
 {
-	(void)program_name;
 	int status;
 
 	do {
@@ -77,7 +77,7 @@ void execute_command(char **args, char *program_name)
 	}
 	else
 	{
-		wait_for_child(pid, program_name);/*Wait for the child process*/
+		wait_for_child(pid);/*Wait for the child process*/
 	}
 
 	if (command_path != NULL)
