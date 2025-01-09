@@ -1,9 +1,4 @@
 #include "shell.h"
-
-#include "shell.h"
-
-#include "shell.h"
-
 /**
  * execute_child_process - Execute the command in the child process
  * @args: Command arguments
@@ -12,21 +7,32 @@
  */
 void execute_child_process(char **args, char *program_name, char *command_path)
 {
-	if (command_path != NULL)/*If the command was found in PATH, execute it*/
+	if (command_path != NULL) /*If the command was found in PATH, execute it*/
 	{
-		if (execve(command_path, args, environ) == -1)
-		{/*Execute the command*/
-			print_error(program_name, args[0]);
-			free(command_path);/*Free the allocated memory*/
+		if (execve(command_path, args, environ) == -1)/*Execute the command*/
+		{
+			perror(program_name);
+			free(command_path);
 			exit(EXIT_FAILURE);
 		}
 	}
-	else /*If the command was not in PATH but is a direct path*/
+	/*If the command was not found in PATH, check if it's a valid direct path*/
+	else
 	{
-		if (execve(args[0], args, environ) == -1)
-		{/*Execute the direct path command*/
-			print_error(program_name, args[0]);
-			exit(EXIT_FAILURE);
+		/*Check if args[0] is a valid file and executable*/
+		if (access(args[0], X_OK) == 0)
+		{
+			if (execve(args[0], args, environ) == -1)
+			{
+				perror(program_name);
+				exit(EXIT_FAILURE);
+			}
+		}
+		else
+		{
+			/*Command not found or not executable*/
+			fprintf(stderr, "%s: %s: Command not found\n", program_name, args[0]);
+			exit(127);
 		}
 	}
 }
@@ -36,16 +42,21 @@ void execute_child_process(char **args, char *program_name, char *command_path)
  * @pid: Process ID of the child
  * @program_name: Name of the shell program
  */
-void wait_for_child(pid_t pid)
-
+void wait_for_child(pid_t pid, char *program_name)
 {
 	int status;
 
 	do {
-		waitpid(pid, &status, WUNTRACED);/* Wait for the child process to complete */
+		waitpid(pid, &status, WUNTRACED);
+		if (WIFEXITED(status))
+		{
+			if (WEXITSTATUS(status) == 127)
+			{
+				fprintf(stderr, "%s: Command not found\n", program_name);
+			}
+		}
 	} while (!WIFEXITED(status) && !WIFSIGNALED(status));
 }
-
 /**
  * execute_command - Forks a new process and executes the command
  * @args: The command to be executed
@@ -77,7 +88,7 @@ void execute_command(char **args, char *program_name)
 	}
 	else
 	{
-		wait_for_child(pid);/*Wait for the child process*/
+		wait_for_child(pid, program_name);/*Wait for the child process*/
 	}
 
 	if (command_path != NULL)
