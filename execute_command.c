@@ -12,44 +12,43 @@ void execute_command(char **args, char *program_name)
 	int status;
 	char *command_path;
 
-	command_path = find_command_path(args[0]);
+	command_path = find_command_path(args[0]);/*Get the full path of the command*/
 	if (args[0][0] != '/' && args[0][0] != '.' && command_path == NULL)
 	{
 		print_error(program_name, args[0]);
 		return;
 	}
-	pid = fork();
+	pid = fork(); /*Create a new child process*/
 	if (pid == 0)
 	{
-		if (command_path != NULL)
+		if (command_path != NULL) /*If the command was found in PATH, execute it*/
 		{
-			if (execve(command_path, args, environ) == -1)
+			if (execve(command_path, args, environ) == -1) /*Execute the command*/
 			{
-				print_error(program_name, args[0]);
+				print_error(program_name, args[0]); /*Error handling if execve fails*/
 				exit(EXIT_FAILURE);
 			}
 		}
-		else
+		else /*If the command was not in PATH but is a direct path*/
 		{
-			if (execve(args[0], args, environ) == -1)
+			if (execve(args[0], args, environ) == -1)/*Execute the direct path command*/
 			{
-				print_error(program_name, args[0]);
+				print_error(program_name, args[0]); /*Error handling if execve fails*/
 				exit(EXIT_FAILURE);
 			}
 		}
 	}
-	else if (pid < 0)
+	else if (pid < 0) /*Error handling for fork failure*/
 	{
 		fprintf(stderr, "%s: Error: Unable to create child process\n", program_name);
 	}
 	else
 	{
 		do {
-			waitpid(pid, &status, WUNTRACED);
+			waitpid(pid, &status, WUNTRACED); /*Wait for the child process to complete*/
 		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
 	}
 }
-
 /**
  * print_error - Prints an error message when a command is not found
  * @program_name: Name of the shell program
