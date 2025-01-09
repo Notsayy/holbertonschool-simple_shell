@@ -38,6 +38,7 @@ void execute_child_process(char **args, char *program_name, char *command_path)
  */
 void wait_for_child(pid_t pid, char *program_name)
 {
+	(void)program_name;
 	int status;
 
 	do {
