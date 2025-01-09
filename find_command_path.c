@@ -1,5 +1,4 @@
 #include "shell.h"
-
 /**
  * find_command_path - find the path of a command
  * @command: command searched
@@ -10,7 +9,6 @@
 char *find_command_path(char *command)
 {
 	char *path_copy, *dir, *full_path, *path_env = NULL;
-	size_t full_path_len;
 	int i;
 
 	for (i = 0; environ[i]; i++)/*Find the PATH variable*/
