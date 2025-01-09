@@ -12,6 +12,7 @@ int main(__attribute__((unused)) int argc, char **argv)
 	size_t input_size = 0;
 	ssize_t input_count;
 	char *program_name = argv[0];
+	char **args;
 
 	while (1)
 	{
@@ -35,7 +36,9 @@ int main(__attribute__((unused)) int argc, char **argv)
 			return (EXIT_SUCCESS);
 		}
 
-		char **args = split_line(input);
+		args = split_line(input);
+		if (args == NULL) /* Handle memory allocation failure */
+			continue;
 
 		if (args[0] != NULL)
 		{
