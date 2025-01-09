@@ -7,94 +7,101 @@
  */
 void execute_child_process(char **args, char *program_name, char *command_path)
 {
-	if (command_path != NULL) /*If the command was found in PATH, execute it*/
+	if (command_path != NULL)
 	{
-		if (execve(command_path, args, environ) == -1)/*Execute the command*/
-		{
-			perror(program_name);
-			free(command_path);
-			exit(EXIT_FAILURE);
-		}
+		execv(command_path, args);
+		perror(program_name);
+		free(command_path);
+		exit(127);
 	}
-	/*If the command was not found in PATH, check if it's a valid direct path*/
 	else
 	{
-		/*Check if args[0] is a valid file and executable*/
 		if (access(args[0], X_OK) == 0)
 		{
-			if (execve(args[0], args, environ) == -1)
-			{
-				perror(program_name);
-				exit(EXIT_FAILURE);
-			}
+			execvp(args[0], args);
+			perror(program_name);
+			exit(127);
 		}
 		else
 		{
-			/*Command not found or not executable*/
+
 			fprintf(stderr, "%s: %s: Command not found\n", program_name, args[0]);
 			exit(127);
 		}
 	}
 }
 
+
 /**
  * wait_for_child - Wait for the child process to complete
  * @pid: Process ID of the child
  * @program_name: Name of the shell program
+ * Return: The exit status of the child process, or EXIT_FAILURE.
  */
-void wait_for_child(pid_t pid, char *program_name)
+int wait_for_child(pid_t pid, char *program_name)
 {
 	int status;
 
-	do {
-		waitpid(pid, &status, WUNTRACED);
-		if (WIFEXITED(status))
-		{
-			if (WEXITSTATUS(status) == 127)
-			{
-				fprintf(stderr, "%s: Command not found\n", program_name);
-			}
-		}
-	} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+	if (waitpid(pid, &status, 0) == -1)
+	{
+		perror(program_name);
+		return (EXIT_FAILURE);
+	}
+	if (WIFEXITED(status))
+	{
+		return (WEXITSTATUS(status));
+	}
+	else if (WIFSIGNALED(status))
+	{
+		fprintf(stderr, "%s: Command terminated by signal %d\n",
+		program_name, WTERMSIG(status));
+		return (128 + WTERMSIG(status));
+	}
+	return (EXIT_FAILURE);
 }
+
 /**
  * execute_command - Forks a new process and executes the command
  * @args: The command to be executed
  * @program_name: Name of the shell program
+ * Return: The exit status of the executed command, or 127 if command not found
  */
-void execute_command(char **args, char *program_name)
+int execute_command(char **args, char *program_name)
 {
 	pid_t pid;
 	char *command_path;
+	int status = EXIT_SUCCESS;
 
-	command_path = find_command_path(args[0]);/*Get the full path of the command*/
+	command_path = find_command_path(args[0]);
 
 	if (args[0][0] != '/' && args[0][0] != '.' && command_path == NULL)
 	{
 		print_error(program_name, args[0]);
-		return;
+		return (127);
 	}
 
-	pid = fork();/*Create a new child process*/
+	pid = fork();
 
 	if (pid == 0)
 	{
-		/*Execute command in the child*/
 		execute_child_process(args, program_name, command_path);
 	}
-	else if (pid < 0)/*Error handling for fork failure*/
+	else if (pid < 0)
 	{
 		fprintf(stderr, "%s: Error: Unable to create child process\n", program_name);
+		status = EXIT_FAILURE;
 	}
 	else
 	{
-		wait_for_child(pid, program_name);/*Wait for the child process*/
+		status = wait_for_child(pid, program_name);
 	}
 
 	if (command_path != NULL)
 	{
-		free(command_path);/*Free the allocated memory for the command path*/
+		free(command_path);
 	}
+
+	return (status);
 }
 
 /**
