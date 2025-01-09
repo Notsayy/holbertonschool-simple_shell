@@ -13,6 +13,7 @@ int main(__attribute__((unused)) int argc, char **argv)
 	ssize_t input_count;
 	char *program_name = argv[0];
 	char **args;
+	int status = EXIT_SUCCESS;
 
 	while (1)
 	{
@@ -42,10 +43,15 @@ int main(__attribute__((unused)) int argc, char **argv)
 
 		if (args[0] != NULL)
 		{
-			execute_command(args, program_name);
+			status = execute_command(args, program_name);
 		}
 
 		free(args);
-	}
-	return (EXIT_SUCCESS);
+		if (status != EXIT_SUCCESS)
+        {
+            free(input);
+            return status;
+        }
+    }
+    return (status);
 }

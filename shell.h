@@ -10,7 +10,7 @@
 extern char **environ;
 #define BUFFER_SIZE 1024
 char **split_line(char *line);
-void execute_command(char **args, char *program_name);
+int execute_command(char **args, char *program_name);
 void print_error(char *program_name, char *command);
 char *find_command_path(char *command);
 #endif
