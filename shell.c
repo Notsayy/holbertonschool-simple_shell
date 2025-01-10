@@ -41,18 +41,18 @@ static char *read_input(void)
 	char *input = NULL;
 	size_t input_size = 0;
 	ssize_t input_count;
-
+	/*Display prompt if running in interactive mode*/
 	if (isatty(STDIN_FILENO))
 		write(STDOUT_FILENO, "$ ", 2);
 
 	input_count = getline(&input, &input_size, stdin);
-
+	/*Handle EOF or error*/
 	if (input_count == -1)
 	{
 		free(input);
 		return (NULL);
 	}
-
+	/*Remove trailing newline if present*/
 	if (input_count > 0 && input[input_count - 1] == '\n')
 		input[input_count - 1] = '\0';
 
@@ -69,20 +69,20 @@ static int process_input(char *input, char *program_name)
 {
 	char **args;
 	int status = EXIT_SUCCESS;
-
+	/*Check for exit command*/
 	if (strcmp(input, "exit") == 0)
 		return (EXIT_FAILURE);
-
+	/*Check for env command*/
 	if (strcmp(input, "env") == 0)
 	{
 		print_environment();
 		return (EXIT_SUCCESS);
 	}
-
+	/*Split input into arguments*/
 	args = split_line(input);
 	if (args == NULL)
 		return (EXIT_SUCCESS);
-
+	/*Execute the command if args[0] is not NULL*/
 	if (args[0] != NULL)
 		status = execute_command(args, program_name);
 
@@ -107,7 +107,7 @@ static void cleanup(char *input, char **args)
 void print_environment(void)
 {
 	char **env = environ;
-
+	/*Iterate through environment variables and print each one*/
 	while (*env != NULL)
 	{
 		printf("%s\n", *env);
