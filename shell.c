@@ -1,57 +1,98 @@
 #include "shell.h"
 
+static char *read_input(void);
+static int process_input(char *input, char *program_name);
+static void cleanup(char *input, char **args);
+
 /**
  * main - Entry point for the shell
- * @argc: argc
- * @argv: argv
+ * @argc: Number of arguments
+ * @argv: Array of argument strings
  * Return: EXIT_SUCCESS on success, EXIT_FAILURE on failure
  */
-int main(__attribute__((unused)) int argc, char **argv)
+int main(int argc, char **argv)
+{
+	char *input;
+	int status = EXIT_SUCCESS;
+	char *program_name = (argc > 0) ? argv[0] : "hsh";
+
+	while (1)
+	{
+		input = read_input();
+		if (input == NULL)
+			break;
+
+		status = process_input(input, program_name);
+		free(input);
+
+		if (status == EXIT_FAILURE)
+			break;
+	}
+
+	return (status);
+}
+
+/**
+ * read_input - Read input from the user
+ * Return: The input string or NULL on EOF or error
+ */
+static char *read_input(void)
 {
 	char *input = NULL;
 	size_t input_size = 0;
 	ssize_t input_count;
-	char *program_name = argv[0];
+
+	if (isatty(STDIN_FILENO))
+		write(STDOUT_FILENO, "$ ", 2);
+
+	input_count = getline(&input, &input_size, stdin);
+
+	if (input_count == -1)
+	{
+		free(input);
+		return (NULL);
+	}
+
+	if (input_count > 0 && input[input_count - 1] == '\n')
+		input[input_count - 1] = '\0';
+
+	return (input);
+}
+
+/**
+ * process_input - Process the user input
+ * @input: The user input string
+ * @program_name: Name of the shell program
+ * Return: EXIT_SUCCESS to continue, EXIT_FAILURE to exit
+ */
+static int process_input(char *input, char *program_name)
+{
 	char **args;
 	int status = EXIT_SUCCESS;
 
-	while (1)
-	{
-		if (isatty(STDIN_FILENO))
-		write(STDOUT_FILENO, "$ ", 2);
+	if (strcmp(input, "exit") == 0)
+		return (EXIT_FAILURE);
 
-		input_count = getline(&input, &input_size, stdin); /* Read the user input */
+	args = split_line(input);
+	if (args == NULL)
+		return (EXIT_SUCCESS);
 
-		if (input_count == -1)
-		{
-			free(input);
-			break; /* Exit on EOF */
-		}
+	if (args[0] != NULL)
+		status = execute_command(args, program_name);
 
-		if (input_count > 0 && input[input_count - 1] == '\n')
-			input[input_count - 1] = '\0'; /* Remove newline */
+	cleanup(NULL, args);
+	return ((status == 127) ? EXIT_SUCCESS : status);
+}
 
-		if (strcmp(input, "exit") == 0) /* Handle 'exit' command */
-		{
-			free(input);
-			return (EXIT_SUCCESS);
-		}
-
-		args = split_line(input);
-		if (args == NULL) /* Handle memory allocation failure */
-			continue;
-
-		if (args[0] != NULL)
-		{
-			status = execute_command(args, program_name);
-		}
-
+/**
+ * cleanup - Clean up resources
+ * @input: The input string to free
+ * @args: The argument array to free
+ */
+static void cleanup(char *input, char **args)
+{
+	if (input != NULL)
+		free(input);
+	if (args != NULL)
 		free(args);
-		if (status != EXIT_SUCCESS)
-        {
-            free(input);
-            return status;
-        }
-    }
-    return (status);
 }
