@@ -13,4 +13,6 @@ char **split_line(char *line);
 int execute_command(char **args, char *program_name);
 void print_error(char *program_name, char *command);
 char *find_command_path(char *command);
+void print_environment(void);
+
 #endif
