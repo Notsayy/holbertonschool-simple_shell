@@ -20,6 +20,7 @@ int _strncmp(const char *s1, const char *s2, size_t n);
 char *_strtok(char *str, const char *tok);
 char *_strdup(char *str);
 int _strlen(char *s);
+int _strcmp(char *s1, char *s2);
 unsigned int check_delim(char c, const char *str);
 char *find_command_path(char *command);
 
