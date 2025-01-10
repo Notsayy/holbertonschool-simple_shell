@@ -1,119 +1,58 @@
-# Holberton Simple Shell
+.TH Shell 1 "December 2024" "Linux Manual"
 
-This project is meant to create a Simple Shell. It's a basic recreation of a Unix command interpreter that provides a command-line interface for users to interact with the operating system.
-## Flowchart
-![Flowchart](image/flowchart.png)
-## Requirements
+.SH NAME
+Shell - interface of an operating system allowing to 
+executes commands and making system calls to the kernel.
 
-### Compilation
-The compilation command used is:
-`gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh`.
+.SH SYNOPSIS
+.I "Shell [COMMAND] [ARGUMENTS]..."
 
-### To Know
-- the version of Ubuntu will be Ubuntu 20.04 LTS
-- the code have to respect Betty style
-- forbid to use mor than 5 functions per file
-- all files will have ["shell.h"](./shell.h) as the header file ("#include shell.h")
-- global variables are forbidden
+.SH DESCRIPTION
+The
+.B Shell
+is a minimalistic shell program designed to interpret user commands, execute programs, and make system calls to the operating system's kernel.
+.PP
+The shell supports fundamental operations such as running programs located in the system PATH, handling command-line arguments, and basic error handling for unknown commands or execution failures.
 
-### Allowed functions
-- all functions from string.h
-- access (man 2 access)  
-- chdir (man 2 chdir)  
-- close (man 2 close)  
-- closedir (man 3 closedir)  
-- execve (man 2 execve)  
-- exit (man 3 exit)  
-- _exit (man 2 _exit)  
-- fflush (man 3 fflush)  
-- fork (man 2 fork)  
-- free (man 3 free)  
-- getcwd (man 3 getcwd)  
-- getline (man 3 getline)  
-- getpid (man 2 getpid)  
-- isatty (man 3 isatty)  
-- kill (man 2 kill)  
-- malloc (man 3 malloc)  
-- open (man 2 open)  
-- opendir (man 3 opendir)  
-- perror (man 3 perror)  
-- printf (man 3 printf)  
-- fprintf (man 3 fprintf)  
-- vfprintf (man 3 vfprintf)  
-- sprintf (man 3 sprintf)  
-- putchar (man 3 putchar)  
-- read (man 2 read)  
-- readdir (man 3 readdir)  
-- signal (man 2 signal)  
-- stat (__xstat) (man 2 stat)  
-- lstat (__lxstat) (man 2 lstat)  
-- fstat (__fxstat) (man 2 fstat)  
-- strtok (man 3 strtok)  
-- wait (man 2 wait)  
-- waitpid (man 2 waitpid)  
-- wait3 (man 2 wait3)  
-- wait4 (man 2 wait4)  
-- write (man 2 write)
+.SH OPTIONS
+The Shell does not currently support complex options or flags.
+However, it allows for commands and their arguments to be passed directly as input, for example:
+.B
+ls -l /home
 
+.SH EXAMPLES
+.PP
+Launch the shell and execute basic commands:
+.PP
+.B
+$ ./hsh
+.B
+$ pwd
+.B
+$ echo "Hello, World!"
+.B
+$ exit
 
-## Project structure
-- [shell.h](./shell.h) : Header file.
-- [execute_command.c](./execute_command.c) : Implements the logic for executing commands and contains the print_error function to handle error messages.
-- [shell.c](./shell.c): Contains the main implementation of our mini Shell.
-- [find_command_path.c](./find_command_path.c): Implements the logic to find the full path of the command.
-- [split_line.c](./split_line.c): Contains the function to split input lines into arguments.
+.PP
+Handling invalid commands:
+.B
+$ ./minishell
+.B
+$ nonexistent_command
+Command not found: nonexistent_command
 
+.SH BUGS
+.PP
+Known issues include:
+.TP
 
+Limited built-in command support beyond "exit".
+.TP
 
-## Output
-The program must have the exact same output as `sh (/bin/sh)` as well as the exact same error output.
+No support for advanced shell features like piping, redirection, or scripting.
+.TP
 
-The only difference is when an error is printed, the name of the program must be equivalent to our executable file.  
-Example of error with `sh`:
+Error messages may not always be descriptive.
 
-
-julien@ubuntu:/# echo "qwerty" | /bin/sh  
-/bin/sh: 1: qwerty: not found  
-julien@ubuntu:/# echo "qwerty" | /bin/../bin/sh  
-/bin/../bin/sh: 1: qwerty: not found  
-
-
-Same error with your program `hsh`:
-
-julien@ubuntu:/# echo "qwerty" | ./hsh  
-./hsh: 1: qwerty: not found  
-julien@ubuntu:/# echo "qwerty" | ./././hsh  
-./././hsh: 1: qwerty: not found  
-
-## Simple Shell Project Features
-
-## Basic Functionality
-- Display a prompt and wait for user input
-- Execute simple commands without arguments
-- Handle errors and "end of file" condition (Ctrl+D)
-
-## Command Execution
-- Execute commands with arguments
-- Handle the PATH to find executables
-- Avoid calling fork if the command doesn't exist
-
-## Built-in Commands
-- Implement the `exit` built-in command
-- Implement the `env` built-in command to print the current environment
-
-## Error Handling
-- Display error messages for non-existent executables
-- Proper error output matching /bin/sh
-
-## Other Features
-- Support for interactive and non-interactive modes
-- Minimal memory leaks
-- Adherence to Betty coding style
-
-## Bugs
-Don't hesitate to let us know if you see any bug regarding the code.
-
-## Credits
-This project is presented by:
-- [Jules Tertre](https://github.com/notsayy)
-- [Ephely Koke](https://github.com/ephely)
+.SH AUTHOR
+Written by Ephely Koke & Jules Tertre.
