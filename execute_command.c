@@ -63,9 +63,11 @@ int execute_command(char **args, char *program_name)
 	else
 		command_path = find_command_path(args[0]);
 
-	if (command_path == NULL)
+	if (command_path == NULL || access(command_path, X_OK) != 0)
 	{
 		print_error(program_name, args[0]);
+		if (command_path != args[0])
+			free(command_path);
 		return (127);
 	}
 
@@ -86,7 +88,6 @@ int execute_command(char **args, char *program_name)
 
 	return (status);
 }
-
 /**
  * print_error - Print an error message for command not found
  * @program_name: Name of the shell program
