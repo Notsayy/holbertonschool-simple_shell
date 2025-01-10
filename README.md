@@ -61,10 +61,10 @@ which means that this project will include only .c files.
 ## Project structure
 - [shell.h](./shell.h) : Header file.
 - [main.c](./main.c)
-- [find_command_path.c]
-- [shell.c]
-- [split_line.c]
-- [execute_command.c]
+- find_command_path.c
+- shell.c
+- split_line.c
+- execute_command.c
 
 
 
