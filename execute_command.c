@@ -10,11 +10,14 @@
  */
 static void execute_child(char *command_path, char **args, char *program_name)
 {
+	/*Execute the command, replacing the current process image*/
 	if (execve(command_path, args, environ) == -1)
 	{
 		perror(program_name);
+		/*Free command_path if it was dynamically allocated*/
 		if (command_path != args[0])
 			free(command_path);
+			/*Exit with status 127 if command execution fails*/
 		exit(127);
 	}
 }
@@ -29,14 +32,16 @@ static void execute_child(char *command_path, char **args, char *program_name)
 static int handle_parent(pid_t pid, char *program_name)
 {
 	int status;
-
+	/*Wait for the child process to complete*/
 	if (waitpid(pid, &status, 0) == -1)
 	{
 		perror(program_name);
 		return (EXIT_FAILURE);
 	}
+	/*Check if the child process exited normally*/
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
+	/*Check if the child process was terminated by a signal*/
 	if (WIFSIGNALED(status))
 		return (128 + WTERMSIG(status));
 	return (EXIT_FAILURE);
@@ -55,14 +60,14 @@ int execute_command(char **args, char *program_name)
 	char *command_path;
 	int status = EXIT_SUCCESS;
 
-	if (args[0] == NULL)
+	if (args[0] == NULL)/*Check if the command is empty*/
 		return (EXIT_SUCCESS);
-
+	/*Determine if the command is a path or needs to be searched*/
 	if (args[0][0] == '/' || args[0][0] == '.' || strchr(args[0], '/'))
 		command_path = args[0];
 	else
 		command_path = find_command_path(args[0]);
-
+	/*Check if the command exists and is executable*/
 	if (command_path == NULL || access(command_path, X_OK) != 0)
 	{
 		print_error(program_name, args[0]);
@@ -70,7 +75,7 @@ int execute_command(char **args, char *program_name)
 			free(command_path);
 		return (127);
 	}
-
+	/*Create a child process*/
 	pid = fork();
 
 	if (pid == 0)
@@ -82,7 +87,7 @@ int execute_command(char **args, char *program_name)
 	}
 	else
 		status = handle_parent(pid, program_name);
-
+	/*Free command_path if it was dynamically allocated*/
 	if (command_path != args[0])
 		free(command_path);
 
