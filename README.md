@@ -78,7 +78,7 @@ Here is how to use the shell:
 - Don't forget to write `exit` or tap `CTRL + D` to leave the shell.
 
 ## Flowchart
-![Flowchart](image/flowchart.png)
+![Flowchart](Flowchart.png)
 
 ## Bugs
 Feel free to let us know if you see any bug regarding the code.
